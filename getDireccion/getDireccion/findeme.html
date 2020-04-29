@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <script type="text/javascript" src="https://maps.google.com/maps/api/js?key=AIzaSyABcK0Gsceh8skSmeXBPR0lWuO4hf2X0Qo"></script>
+</head>
+<style>
+    #map {
+        width: 500px;
+        height: 300px;
+    }
+</style>
+
+<body>
+
+    <button onclick="findme()">Mostrar Ubicacion</button>
+
+    <div id="map"></div>
+    <h1 id="dire"></h1>
+
+
+
+    <script>
+        function findme() {
+            var output = document.getElementById("map");
+            var direccion = document.getElementById("dire");
+            if (navigator.geolocation) {
+                output.innerHTML = "<p> Tu navegador soporta Geo</p>";
+
+            } else {
+                output.innerHTML = "<p> Tu navegador no soporta Geo</p>";
+            }
+
+            function localizacion(posicion) {
+
+                var lat = posicion.coords.latitude;
+                var lon = posicion.coords.longitude;
+
+                var map = new google.maps.Map(output, {
+                    center: {
+                        lat: 20.3643,
+                        lng: -100.8436
+                    },
+                    scrollwheel: false,
+                    zoom: 10,
+                    zoomControl: true,
+                    rotateControl: false,
+                    mapTypeControl: true,
+                    streetViewControl: false,
+                });
+                var marker = new google.maps.Marker({
+                    position: {
+                        lat: lat,
+                        lng: lon
+                    },
+                    draggable: true
+                });
+                // Le asignamos el mapa a los marcadores.
+                marker.setMap(map);
+
+                // creamos el objeto geodecoder
+                var geocoder = new google.maps.Geocoder();
+                var infowindow = new google.maps.InfoWindow;
+
+                google.maps.event.addListener('click', function() {
+                    geocodeLatLng(geocoder, map, infowindow);
+                });
+
+                function geocodeLatLng(geocoder, map, infowindow) {
+                    var latlong = [lat, lon];
+                    geocoder.geocode({
+                        'location': marker.position()
+                    }, function(results, status) {
+                        if (status === 'OK') {
+                            if (results[0]) {
+                                map.setZoom(3);
+                                infowindow.setContent(results[0].formatted_address);
+                                infowindow.open(map, marker);
+                            }
+                        }
+                    });
+                }
+
+                // le asignamos una funcion al eventos dragend del marcado
+                //google.maps.event.addListener(marker, 'dragend', function() {
+                geocoder.geocode({
+                    'latLng': marker.getPosition()
+                }, function(results, status) {
+
+                    if (status == OK) {
+                        var addres = results[0]['formatted_address'];
+
+                    }
+                });
+
+                //});
+                //output.innerHTML = "<p> latitud: " + lat + "<br> longitud: " + lon + "</p>";
+            }
+
+            function error() {
+                output.innerHTML = "No se pudo obtener la ubicacion mas cerana";
+            }
+
+            navigator.geolocation.getCurrentPosition(localizacion, error);
+        }
+    </script>
+
+</body>
+
+</html>
